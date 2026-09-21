@@ -1,1 +1,428 @@
-# HH
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trắc Nghiệm Kinh Tế Chính Trị Mác - Lênin</title>
+    <style>
+        :root {
+            --primary-color: #1e3a8a; /* Đậm học thuật */
+            --secondary-color: #3b82f6;
+            --background-color: #f3f4f6;
+            --text-color: #1f2937;
+            --card-bg: #ffffff;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--secondary-color);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #111827;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background-color: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            color: var(--text-color);
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #eff6ff;
+            border-color: var(--secondary-color);
+        }
+
+        .option-btn.correct {
+            background-color: #d1fae5;
+            border-color: var(--success-color);
+            color: #065f46;
+        }
+
+        .option-btn.wrong {
+            background-color: #fee2e2;
+            border-color: var(--error-color);
+            color: #991b1b;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: none;
+        }
+
+        .next-btn:hover {
+            background-color: #1e40af;
+        }
+
+        .result-container {
+            text-align: center;
+            display: none;
+        }
+
+        .result-container h2 {
+            color: var(--primary-color);
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .score-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 20px 0;
+        }
+
+        .restart-btn {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.2s;
+        }
+
+        .restart-btn:hover {
+            background-color: #059669;
+        }
+
+        .github-note {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #9ca3af;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .quiz-container {
+                padding: 20px;
+            }
+            .question-text {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz-screen">
+        <div class="header">
+            <h1>Ôn Tập Kinh Tế Chính Trị Mác - Lênin</h1>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <div class="question-meta">
+            <span id="question-number">Câu 1 / 66</span>
+            <span id="score-tracker">Điểm: 0</span>
+        </div>
+
+        <div class="question-text" id="question-text">
+            Đang tải câu hỏi...
+        </div>
+
+        <div class="options-container" id="options-container">
+            <!-- Options will be generated here -->
+        </div>
+
+        <div class="controls">
+            <button class="next-btn" id="next-btn" onclick="nextQuestion()">Câu Tiếp Theo ➔</button>
+        </div>
+    </div>
+
+    <div class="quiz-container result-container" id="result-screen">
+        <h2>Hoàn Thành Bài Thi!</h2>
+        <p>Bạn đã trả lời xong tất cả các câu hỏi.</p>
+        <div class="score-display" id="final-score">0 / 66</div>
+        <p id="feedback-message">Cố gắng ôn tập thêm nhé!</p>
+        <button class="restart-btn" onclick="restartQuiz()">Làm Lại Bài Thi</button>
+        <div class="github-note">Tập tin HTML này đã sẵn sàng để tải lên GitHub Pages.</div>
+    </div>
+
+    <script>
+        const quizData = [
+            { q: 'Thuật ngữ "kinh tế - chính trị" được sử dụng lần đầu vào năm nào?', a: 'Năm 1615.', w: ['Năm 1610.', 'Năm 1815.', 'Năm 1715.'] },
+            { q: 'Ai là người đầu tiên đưa ra khái niệm "kinh tế - chính trị"?', a: 'Antoine Montchretien.', w: ['Adam Smith.', 'Karl Marx.', 'David Ricardo.'] },
+            { q: 'Học thuyết kinh tế nào của C.Mác được coi là hòn đá tảng?', a: 'Học thuyết giá trị thặng dư.', w: ['Học thuyết hình thái kinh tế - xã hội.', 'Học thuyết giai cấp.', 'Học thuyết tích luỹ tư bản.'] },
+            { q: 'Kinh tế - chính trị Mác - Lênin đã kế thừa và phát triển trực tiếp những thành tựu của:', a: 'Kinh tế chính trị cổ điển Anh.', w: ['Chủ nghĩa xã hội không tưởng Pháp.', 'Triết học cổ điển Đức.', 'Kinh tế học tư sản hiện đại.'] },
+            { q: 'Đối tượng nghiên cứu của kinh tế - chính trị Mác - Lênin là:', a: 'Quan hệ sản xuất trong mối quan hệ tác động qua lại vs lực lượng sản xuất và kiến trúc thượng tầng.', w: ['Các quy luật kinh tế của nền sản xuất hàng hóa.', 'Sự phát triển của lực lượng sản xuất xã hội.', 'Quá trình sản xuất và lưu thông hàng hóa.'] },
+            { q: 'Để nghiên cứu kinh tế - chính trị Mác - Lênin có thể sử dụng nhiều phương pháp, phương pháp nào quan trọng nhất?', a: 'Trừu tượng hoá khoa học.', w: ['Phân tích và tổng hợp.', 'Lịch sử và logic.', 'Thống kê và so sánh.'] },
+            { q: 'Chức năng nhận thức của kinh tế - chính trị là nhằm:', a: 'Cả A, B, C đều đúng.', w: ['Phát hiện bản chất của các hiện tượng và quá trình kinh tế.', 'Sự tác động giữa quan hệ sản xuất với lực lượng sản xuất và kiến trúc thượng tầng.', 'Tìm ra các quy luật kinh tế.'] },
+            { q: 'Hoạt động nào của con người được coi là cơ bản nhất và là cơ sở của đời sống xã hội?', a: 'Hoạt động sản xuất của cải vật chất.', w: ['Hoạt động chính trị - xã hội.', 'Hoạt động nghiên cứu khoa học.', 'Hoạt động văn hóa nghệ thuật.'] },
+            { q: '"Những thời đại kinh tế khác nhau không phải ở chỗ chúng sản xuất ra cái gì, mà là ở chỗ chúng sản xuất bằng cách nào, với những tư liệu lao động nào". Câu nói trên là của ai?', a: 'C.Mác.', w: ['V.I.Lênin.', 'Ph.Ăngghen.', 'Adam Smith.'] },
+            { q: 'Các phương thức sản xuất nối tiếp nhau trong lịch sử theo trình tự nào?', a: 'Cộng sản nguyên thuỷ - chiếm hữu nô lệ - phong kiến - tư bản - chủ nghĩa cộng sản.', w: ['Cộng sản nguyên thuỷ - phong kiến - chiếm hữu nô lệ - tư bản - chủ nghĩa cộng sản.', 'Chiếm hữu nô lệ - phong kiến - cộng sản nguyên thuỷ - tư bản - chủ nghĩa xã hội.', 'Cộng sản nguyên thuỷ - tư bản - chiếm hữu nô lệ - phong kiến - chủ nghĩa xã hội.'] },
+            { q: 'Khi nghiên cứu phương thức sản xuất TBCN, C.Mác bắt đầu từ:', a: 'Sản xuất hàng hoá giản đơn và hàng hoá.', w: ['Nền sản xuất tư bản chủ nghĩa.', 'Lưu thông hàng hóa.', 'Quá trình tích lũy tư bản.'] },
+            { q: 'Sản xuất hàng hoá xuất hiện dựa trên:', a: 'Phân công lao động xã hội và chế độ tư hữu hoặc những hình thức sở hữu khác nhau về tư liệu sản xuất.', w: ['Sự ra đời của tiền tệ và nhà nước.', 'Nhu cầu tiêu dùng vô hạn của con người.', 'Sự phát triển của máy móc công nghiệp.'] },
+            { q: 'Hàng hóa là:', a: 'Sản phẩm của lao động có thể thoả mãn nhu cầu nào đó của con người thông qua trao đổi, mua bán.', w: ['Mọi vật phẩm có ích trong tự nhiên.', 'Sản phẩm được tạo ra để tự tiêu dùng.', 'Tất cả của cải vật chất trong xã hội.'] },
+            { q: 'Giá trị của hàng hoá được quyết định bởi:', a: 'Lao động trừu tượng của người sản xuất kết tinh trong hàng hoá.', w: ['Lao động cụ thể của người sản xuất.', 'Sự khan hiếm của hàng hóa trên thị trường.', 'Giá trị sử dụng của hàng hóa.'] },
+            { q: 'Quy luật giá trị có tác dụng:', a: 'Cả A, B và C.', w: ['Điều tiết sản xuất và lưu thông hàng hoá.', 'Cải tiến kỹ thuật, tăng năng suất lao động.', 'Phân hoá giàu nghèo.'] },
+            { q: 'Giá cả hàng hoá là:', a: 'Biểu hiện bằng tiền của giá trị hàng hoá.', w: ['Sự thỏa thuận giữa người mua và người bán.', 'Mức độ khan hiếm của hàng hóa.', 'Chi phí sản xuất ra hàng hóa đó.'] },
+            { q: 'Quy luật giá trị là:', a: 'Quy luật cơ bản của sản xuất và trao đổi hàng hoá.', w: ['Quy luật riêng có của chủ nghĩa tư bản.', 'Quy luật kinh tế của thời kỳ quá độ.', 'Quy luật của nền kinh tế tự nhiên.'] },
+            { q: 'Lao động trừu tượng là:', a: 'Là lao động tạo ra giá trị của hàng hóa.', w: ['Là lao động tạo ra giá trị sử dụng của hàng hóa.', 'Là lao động trí óc phức tạp.', 'Là lao động giản đơn.'] },
+            { q: 'Lao động cụ thể là:', a: 'Là lao động tạo ra giá trị sử dụng của hàng hóa.', w: ['Là lao động tạo ra giá trị của hàng hóa.', 'Là hao phí sức lực nói chung của con người.', 'Là lao động chân tay giản đơn.'] },
+            { q: 'Lượng giá trị xã hội của hàng hoá được quyết định bởi:', a: 'Hao phí lao động cần thiết của người sản xuất hàng hoá.', w: ['Hao phí lao động cá biệt của người sản xuất giỏi nhất.', 'Hao phí lao động cá biệt của người sản xuất kém nhất.', 'Tổng hao phí lao động của toàn xã hội.'] },
+            { q: 'Hai hàng hoá trao đổi được với nhau vì:', a: 'Có lượng lao động xã hội cần thiết để sản xuất ra chúng bằng nhau.', w: ['Có giá trị sử dụng giống nhau.', 'Có cùng hình thức biểu hiện ra bên ngoài.', 'Đáp ứng cùng một nhu cầu của con người.'] },
+            { q: 'Giá trị sử dụng của hàng hóa là gì?', a: 'Là công dụng của sản phẩm có thể thoả mãn nhu cầu nào đó của con người.', w: ['Là hao phí lao động xã hội cần thiết.', 'Là giá cả của hàng hóa trên thị trường.', 'Là khả năng trao đổi được với hàng hóa khác.'] },
+            { q: 'Thế nào là lao động giản đơn?', a: 'Là lao động không cần trải qua đào tạo cũng có thể làm được.', w: ['Là lao động trí óc.', 'Là lao động phải trải qua đào tạo, huấn luyện mới làm được.', 'Là lao động tạo ra ít giá trị nhất.'] },
+            { q: 'Thế nào là lao động phức tạp?', a: 'Là lao động phải trải qua đào tạo, huấn luyện mới làm được.', w: ['Là lao động chân tay nặng nhọc.', 'Là lao động không cần đào tạo chuyên môn.', 'Là lao động chỉ diễn ra trong công nghiệp.'] },
+            { q: 'Chức năng cơ bản của tiền tệ?', a: 'Thước đo giá trị, phương tiện lưu thông, phương tiện thanh toán, phương tiện cất trữ, tiền tệ thế giới.', w: ['Lưu thông hàng hóa, thanh toán quốc tế, cất trữ, tín dụng.', 'Thước đo giá trị, phương tiện mua bán, công cụ quản lý vĩ mô.', 'Phương tiện trao đổi, tiền tệ thế giới, lưu thông tư bản.'] },
+            { q: 'Giá cả của hàng hoá được quyết định bởi:', a: 'Cả A, B, C đều đúng.', w: ['Giá trị của hàng hoá.', 'Cung cầu và cạnh tranh.', 'Giá trị của tiền tệ trong lưu thông.'] },
+            { q: 'Quan hệ giữa tăng năng suất lao động với giá trị hàng hoá. Chọn ý đúng dưới đây:', a: 'Năng suất lao động tăng lên thì giá trị 1 đơn vị hàng hoá giảm.', w: ['Năng suất lao động tăng lên thì giá trị 1 đơn vị hàng hoá tăng.', 'Năng suất lao động thay đổi không ảnh hưởng đến giá trị 1 đơn vị hàng hóa.', 'Năng suất lao động tăng lên thì tổng giá trị hàng hóa giảm.'] },
+            { q: 'Sản xuất và lưu thông hàng hoá chịu sự chi phối của quy luật kinh tế nào?', a: 'Quy luật giá trị.', w: ['Quy luật cung cầu.', 'Quy luật cạnh tranh.', 'Quy luật lưu thông tiền tệ.'] },
+            { q: 'Quy luật giá trị có yêu cầu gì?', a: 'Sản xuất và lưu thông hàng hoá phải dựa trên cơ sở hao phí lao động xã hội cần thiết.', w: ['Sản xuất phải đáp ứng tối đa nhu cầu của xã hội.', 'Lưu thông hàng hóa phải thông qua tiền tệ.', 'Giá cả phải luôn bằng với giá trị hàng hóa.'] },
+            { q: 'Về bản chất, tiền tệ là:', a: 'Là hàng hoá đặc biệt đóng vai trò là vật ngang giá chung cho các loại hàng hóa.', w: ['Là quy ước của nhà nước để thuận tiện cho việc mua bán.', 'Là tờ giấy bạc do ngân hàng trung ương phát hành.', 'Là thước đo sự giàu có của một quốc gia.'] },
+            { q: 'Một trong những đặc trưng phổ biến của kinh tế thị trường?', a: 'Có sự đa dạng của các chủ thể kinh tế, nhiều hình thức sở hữu.', w: ['Chỉ có sở hữu tư nhân về tư liệu sản xuất.', 'Nhà nước bao cấp toàn bộ nền kinh tế.', 'Không có sự can thiệp của Nhà nước.'] },
+            { q: 'Mục tiêu hàng đầu của phát triển kinh tế thị trường là gì?', a: 'Giải phóng lực lượng sản xuất, huy động nguồn lực cho CNH, HĐH, cải thiện đời sống Nhân dân.', w: ['Đảm bảo lợi nhuận tối đa cho các nhà tư bản.', 'Xóa bỏ hoàn toàn chế độ tư hữu.', 'Mở rộng thị trường ra quốc tế bằng mọi giá.'] },
+            { q: 'Vai trò kinh tế của chủ thể Nhà nước trong kinh tế thị trường:', a: 'Thực hiện chức năng quản lý nhà nước về kinh tế, thực hiện những biện pháp khắc phục những khuyết tật của thị trường.', w: ['Trực tiếp sản xuất và kinh doanh mọi mặt hàng.', 'Định giá cho tất cả các loại hàng hóa trên thị trường.', 'Loại bỏ hoàn toàn quy luật giá trị và cạnh tranh.'] },
+            { q: 'Cơ chế thị trường là:', a: 'Là hệ thống các quan hệ mang tính tự điều chỉnh theo yêu cầu của các quy luật của kinh tế.', w: ['Là sự điều hành nền kinh tế của Nhà nước.', 'Là nơi diễn ra các hoạt động mua bán hàng hóa.', 'Là các chính sách tài khóa và tiền tệ.'] },
+            { q: 'Cơ chế tác động của quy luật giá trị?', a: 'Giá cả thị trường lên xuống xoay quanh giá trị hàng hóa.', w: ['Giá cả luôn bằng giá trị hàng hóa.', 'Giá cả do Nhà nước hoàn toàn quyết định.', 'Giá cả độc lập hoàn toàn với giá trị hàng hóa.'] },
+            { q: 'Cơ chế thị trường được A.Smith ví như là:', a: 'Một "bàn tay vô hình" có khả năng tự điều chỉnh các quan hệ kinh tế.', w: ['Một "bàn tay hữu hình" của Nhà nước.', 'Một cỗ máy hoạt động theo lập trình sẵn.', 'Một cuộc chiến sinh tồn khốc liệt.'] },
+            { q: 'Giá cả thị trường có chức năng gì?', a: 'Cả A, B, C đều đúng', w: ['Thông tin.', 'Phân bố các nguồn lực kinh tế.', 'Thúc đẩy tiến bộ khoa học công nghệ.'] },
+            { q: 'Chủ thể sản xuất là chủ thể:', a: 'Là những người sản xuất và cung cấp hàng hóa, dịch vụ ra thị trường nhằm đáp ứng nhu cầu tiêu dùng của xã hội.', w: ['Chỉ bao gồm các doanh nghiệp nhà nước.', 'Là những người tiêu thụ hàng hóa cuối cùng.', 'Là ngân hàng trung ương và các tổ chức tín dụng.'] },
+            { q: 'Chủ thể tiêu dùng là chủ thể:', a: 'Mua hàng hóa, dịch vụ trên thị trường để thỏa mãn nhu cầu tiêu dùng.', w: ['Cung cấp yếu tố đầu vào cho sản xuất.', 'Điều tiết các mối quan hệ kinh tế vĩ mô.', 'Làm trung gian giữa người mua và người bán.'] },
+            { q: 'Chủ thể trung gian trong thị trường là?', a: 'Những cá nhân, tổ chức đảm nhiệm vai trò cầu nối giữa các chủ thể sản xuất, tiêu dùng hàng hóa, dịch vụ trên thị trường.', w: ['Các cơ quan quản lý nhà nước.', 'Người trực tiếp sản xuất ra của cải vật chất.', 'Người tiêu dùng cuối cùng.'] },
+            { q: 'Tư bản là:', a: 'Giá trị mang lại giá trị thặng dư bằng cách bóc lột lao động làm thuê.', w: ['Là tiền tiết kiệm của cá nhân.', 'Là mọi công cụ lao động và nguyên vật liệu.', 'Là toàn bộ tài sản của một quốc gia.'] },
+            { q: 'Chọn ý đúng về lao động và sức lao động:', a: 'Sức lao động chỉ là khả năng, còn lao động là sức lao động đã được tiêu dùng.', w: ['Sức lao động và lao động là một.', 'Lao động là khả năng, sức lao động là quá trình tiêu dùng.', 'Sức lao động tạo ra giá trị sử dụng, lao động tạo ra giá trị.'] },
+            { q: 'Điều kiện để sức lao động trở thành hàng hoá là:', a: 'Người lao động được tự do thân thể, họ không có tư liệu sản xuất.', w: ['Người lao động có đầy đủ tư liệu sản xuất.', 'Nhà nước ép buộc người lao động phải đi làm.', 'Nền kinh tế hàng hóa phát triển đến đỉnh cao.'] },
+            { q: 'Ai là người đầu tiên chia tư bản sản xuất thành tư bản bất biến (c) và tư bản khả biến (v)?', a: 'C.Mác.', w: ['Adam Smith.', 'David Ricardo.', 'V.I.Lênin.'] },
+            { q: 'Tư bản bất biến (c) là:', a: 'Giá trị của nó không thay đổi về lượng và được chuyển nguyên vẹn sang sản phẩm.', w: ['Là bộ phận tư bản dùng để mua sức lao động.', 'Giá trị của nó tăng lên sau quá trình sản xuất.', 'Là lợi nhuận thu được của nhà tư bản.'] },
+            { q: 'Chọn ý đúng về hàng hoá sức lao động:', a: 'Giá trị sử dụng của nó có khả năng tạo ra giá trị mới.', w: ['Giá trị của nó do quy luật cung cầu quyết định hoàn toàn.', 'Nó là hàng hóa thông thường như mọi hàng hóa khác.', 'Nó không thể mang lại giá trị thặng dư.'] },
+            { q: 'Tư bản cố định có vai trò gì?', a: 'Là điều kiện để tăng năng suất lao động.', w: ['Là nguồn gốc trực tiếp sinh ra giá trị thặng dư.', 'Làm giảm chi phí lưu thông hàng hóa.', 'Không có vai trò gì trong sản xuất tư bản.'] },
+            { q: 'Tư bản cố định là:', a: 'Bộ phận tư bản sản xuất tồn tại dưới hình thái tư liệu lao động.', w: ['Bộ phận tư bản tồn tại dưới hình thái sức lao động.', 'Toàn bộ tư liệu sản xuất và tiền mặt của doanh nghiệp.', 'Nguyên, nhiên, vật liệu tham gia vào quá trình sản xuất.'] },
+            { q: 'Tư bản lưu động là:', a: 'Tư bản lưu động là bộ phận tư bản sản xuất tồn tại dưới hình thái sức lao động, nguyên, nhiên vật liệu.', w: ['Chỉ bao gồm máy móc, thiết bị nhà xưởng.', 'Là lượng tiền mặt lưu thông trên thị trường.', 'Là tư bản dùng để đóng thuế cho nhà nước.'] },
+            { q: 'Tư bản khả biến là:', a: 'Là tư bản dùng để mua sức lao động của công nhân làm thuê.', w: ['Là tư bản dùng để mua máy móc thiết bị.', 'Là tư bản mua nguyên, nhiên vật liệu.', 'Là tổng số tiền đầu tư ban đầu.'] },
+            { q: 'Các cách diễn tả giá trị hàng hoá dưới đây, cách nào đúng?', a: 'Giá trị hàng hoá = c + v + m.', w: ['Giá trị hàng hoá = c + v.', 'Giá trị hàng hoá = v + m.', 'Giá trị hàng hoá = c + m.'] },
+            { q: 'Khi nào tiền tệ biến thành tư bản?', a: 'Được dùng để mang lại giá trị thặng dư.', w: ['Khi được mang đi gửi ngân hàng.', 'Khi dùng để mua sắm vật dụng sinh hoạt.', 'Khi được dùng làm phương tiện cất trữ.'] },
+            { q: 'Các công thức tính tỷ suất giá trị thặng dư dưới đây, công thức nào đúng?', a: 'Cả A và B', w: ['m' = m/v * 100%', 'm' = (Thời gian lao động thặng dư / Thời gian lao động tất yếu) * 100%', 'm' = (Thời gian lao động tất yếu / Thời gian lao động thặng dư) * 100%'] },
+            { q: 'Giá trị thặng dư tương đối là:', a: 'Cả A,B và C.', w: ['Giá trị thặng dư tương đối là giá trị thặng dư thu được nhờ rút ngắn thời gian lao động tất yếu.', 'Kéo dài thời gian lao động thặng dư.', 'Độ dài ngày lao động không thay đổi hoặc rút ngắn.'] },
+            { q: 'Giá trị thặng dư siêu ngạch được coi là:', a: 'Hình thái biến tướng của giá trị thặng dư tương đối.', w: ['Hình thái biến tướng của giá trị thặng dư tuyệt đối.', 'Lợi nhuận độc quyền.', 'Lợi tức cho vay.'] },
+            { q: 'Quá trình tái sản xuất xã hội gồm có mấy khâu?', a: 'Bốn khâu: sản xuất - phân phối - trao đổi - tiêu dùng.', w: ['Hai khâu: sản xuất - tiêu dùng.', 'Ba khâu: sản xuất - lưu thông - tiêu dùng.', 'Năm khâu: sản xuất - phân phối - trao đổi - lưu thông - tiêu dùng.'] },
+            { q: 'Tiền công là:', a: 'Giá cả của hàng hóa sức lao động.', w: ['Giá trị của lao động.', 'Phần chia lợi nhuận của nhà tư bản cho công nhân.', 'Giá trị do công nhân tạo ra trong cả ngày lao động.'] },
+            { q: 'Giá trị thặng dư là gì?', a: 'Phần giá trị mới dôi ra ngoài giá trị sức lao động do người công nhân làm thuê tạo ra bị nhà tư bản chiếm không.', w: ['Là lợi nhuận thu được từ việc chênh lệch giá mua và bán.', 'Là tiền tiết kiệm của nhà tư bản sau quá trình sản xuất.', 'Là phần thưởng cho sự quản lý tài ba của nhà tư bản.'] },
+            { q: 'Theo quan niệm của P. Samuelson, lợi nhuận là:', a: 'Phần thu nhập thặng dư tính bằng hiệu quả giữa tổng doanh thu trừ đi tổng chi phí.', w: ['Hình thái biến tướng của giá trị thặng dư.', 'Phần giá trị do lao động thặng dư tạo ra.', 'Sự chênh lệch giữa tư bản khả biến và bất biến.'] },
+            { q: 'So sánh giữa tỷ suất lợi nhuận và tỷ suất giá trị thặng dư? Chọn đáp án đúng?', a: 'p' < m'.', w: ['p' > m'.', 'p' = m'.', 'Không thể so sánh được.'] },
+            { q: 'Ý kiến nào dưới đây là sai?', a: 'Tích luỹ cơ bản là sự tiết kiệm tư bản.', w: ['Tích lũy tư bản là biến một phần giá trị thặng dư thành tư bản.', 'Nguồn gốc của tích lũy tư bản là giá trị thặng dư.', 'Tích lũy tư bản làm tăng cấu tạo hữu cơ của tư bản.'] },
+            { q: 'Nguồn gốc của tích luỹ tư bản là:', a: 'Giá trị thặng dư.', w: ['Lợi nhuận thương nghiệp.', 'Tiết kiệm tiêu dùng của nhà tư bản.', 'Vay vốn từ ngân hàng.'] }
+        ];
+
+        // Shuffle function to randomise array elements
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let questions = [];
+
+        function initQuiz() {
+            // Copy and shuffle the questions
+            questions = shuffle([...quizData]);
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById('quiz-screen').style.display = 'block';
+            document.getElementById('result-screen').style.display = 'none';
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            document.getElementById('question-number').innerText = `Câu ${currentQuestionIndex + 1} / ${questions.length}`;
+            document.getElementById('score-tracker').innerText = `Điểm: ${score}`;
+            document.getElementById('question-text').innerText = currentQuestion.q;
+            
+            // Update Progress Bar
+            const progressPercent = (currentQuestionIndex / questions.length) * 100;
+            document.getElementById('progress').style.width = `${progressPercent}%`;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            document.getElementById('next-btn').style.display = 'none';
+
+            // Prepare options (1 correct, 3 wrong)
+            let options = [...currentQuestion.w, currentQuestion.a];
+            
+            // Handle specific "Cả A, B, C đều đúng" cases to keep them at the bottom usually, 
+            // but for simplicity we will just shuffle them, unless they are literal "Cả A và B" types.
+            // A smarter approach: if option contains "Cả A", maybe don't shuffle completely, but let's just shuffle.
+            const hasAllCorrectOption = options.some(opt => opt.includes('Cả A') || opt.includes('đều đúng'));
+            if (!hasAllCorrectOption) {
+                options = shuffle(options);
+            } else {
+                // Keep the 'All correct' type option at the end
+                const allOpt = options.find(opt => opt.includes('Cả A') || opt.includes('đều đúng'));
+                const restOpts = shuffle(options.filter(opt => opt !== allOpt));
+                options = [...restOpts, allOpt];
+            }
+
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.innerText = option;
+                button.onclick = () => selectAnswer(button, option === currentQuestion.a);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function selectAnswer(selectedBtn, isCorrect) {
+            // Disable all buttons
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.innerText === questions[currentQuestionIndex].a) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            if (isCorrect) {
+                selectedBtn.classList.add('correct');
+                score++;
+                document.getElementById('score-tracker').innerText = `Điểm: ${score}`;
+            } else {
+                selectedBtn.classList.add('wrong');
+            }
+
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            document.getElementById('final-score').innerText = `${score} / ${questions.length}`;
+            
+            let feedback = document.getElementById('feedback-message');
+            const percent = score / questions.length;
+            if (percent >= 0.9) {
+                feedback.innerText = 'Xuất sắc! Bạn nắm kiến thức môn này rất vững.';
+            } else if (percent >= 0.7) {
+                feedback.innerText = 'Rất tốt! Chỉ cần ôn lại một chút nữa là hoàn hảo.';
+            } else if (percent >= 0.5) {
+                feedback.innerText = 'Khá ổn! Bạn nên đọc lại tài liệu để chắc chắn hơn nhé.';
+            } else {
+                feedback.innerText = 'Bạn cần dành thêm thời gian ôn tập học phần này rồi!';
+            }
+        }
+
+        function restartQuiz() {
+            initQuiz();
+        }
+
+        // Start the quiz when page loads
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
