@@ -13,6 +13,7 @@
             --card-bg: #ffffff;
             --success-color: #10b981;
             --error-color: #ef4444;
+            --warning-color: #f59e0b;
         }
 
         * {
@@ -76,10 +77,18 @@
         .question-meta {
             display: flex;
             justify-content: space-between;
-            font-size: 14px;
+            font-size: 15px;
             color: #6b7280;
             margin-bottom: 15px;
             font-weight: 600;
+        }
+        
+        .timer {
+            color: var(--error-color);
+            font-weight: bold;
+            background: #fee2e2;
+            padding: 4px 10px;
+            border-radius: 6px;
         }
 
         .question-text {
@@ -107,25 +116,16 @@
             color: var(--text-color);
         }
 
-        .option-btn:hover:not(:disabled) {
+        .option-btn:hover {
+            background-color: #f3f4f6;
+            border-color: #d1d5db;
+        }
+
+        /* Chế độ chọn (chưa biết đúng sai) */
+        .option-btn.selected {
             background-color: #eff6ff;
             border-color: var(--secondary-color);
-        }
-
-        .option-btn.correct {
-            background-color: #d1fae5;
-            border-color: var(--success-color);
-            color: #065f46;
-        }
-
-        .option-btn.wrong {
-            background-color: #fee2e2;
-            border-color: var(--error-color);
-            color: #991b1b;
-        }
-
-        .option-btn:disabled {
-            cursor: not-allowed;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
         }
 
         .controls {
@@ -169,30 +169,76 @@
             margin: 20px 0;
         }
 
-        .restart-btn {
-            background-color: var(--success-color);
-            color: white;
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
             border: none;
             border-radius: 8px;
-            padding: 12px 30px;
+            padding: 12px 25px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 20px;
             transition: background-color 0.2s;
+            color: white;
         }
 
-        .restart-btn:hover {
-            background-color: #059669;
+        .restart-btn { background-color: var(--success-color); }
+        .restart-btn:hover { background-color: #059669; }
+        
+        .review-btn { background-color: var(--warning-color); }
+        .review-btn:hover { background-color: #d97706; }
+
+        .review-container {
+            margin-top: 30px;
+            text-align: left;
+            display: none;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
         }
+
+        .review-item {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--error-color);
+        }
+
+        .review-question {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #111827;
+        }
+
+        .review-wrong {
+            color: var(--error-color);
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+
+        .review-correct {
+            color: var(--success-color);
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        /* Tùy chỉnh thanh cuộn cho khu vực review */
+        .review-container::-webkit-scrollbar { width: 6px; }
+        .review-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .review-container::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        .review-container::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
 
         @media (max-width: 600px) {
-            .quiz-container {
-                padding: 20px;
-            }
-            .question-text {
-                font-size: 16px;
-            }
+            .quiz-container { padding: 20px; }
+            .question-text { font-size: 16px; }
+            .score-display { font-size: 36px; }
         }
     </style>
 </head>
@@ -200,7 +246,7 @@
 
     <div class="quiz-container" id="quiz-screen">
         <div class="header">
-            <h1>Ôn Tập Kinh Tế Chính Trị Mác - Lênin</h1>
+            <h1>Bài Thi: Kinh Tế Chính Trị Mác - Lênin</h1>
         </div>
         
         <div class="progress-bar">
@@ -209,7 +255,7 @@
 
         <div class="question-meta">
             <span id="question-number">Câu 1 / 66</span>
-            <span id="score-tracker">Điểm: 0</span>
+            <span class="timer" id="timer">Thời gian: 90:00</span>
         </div>
 
         <div class="question-text" id="question-text">
@@ -226,10 +272,18 @@
 
     <div class="quiz-container result-container" id="result-screen">
         <h2>Hoàn Thành Bài Thi!</h2>
-        <p>Bạn đã trả lời xong tất cả các câu hỏi.</p>
+        <p>Bạn đã hoàn thành tất cả các câu hỏi hoặc đã hết thời gian.</p>
         <div class="score-display" id="final-score">0 / 66</div>
         <p id="feedback-message">Cố gắng ôn tập thêm nhé!</p>
-        <button class="restart-btn" onclick="restartQuiz()">Làm Lại Bài Thi</button>
+        
+        <div class="action-buttons">
+            <button class="btn restart-btn" onclick="initQuiz()">Làm Lại Bài Thi</button>
+            <button class="btn review-btn" id="toggle-review-btn" onclick="toggleReview()">Xem Lại Câu Sai</button>
+        </div>
+
+        <div class="review-container" id="review-container">
+            <!-- Các câu sai sẽ được render ở đây -->
+        </div>
     </div>
 
     <script>
@@ -246,20 +300,52 @@
         let currentQuestionIndex = 0;
         let score = 0;
         let questions = [];
+        let userAnswers = []; // Lưu trữ câu trả lời của người dùng
+        
+        let timeLeft = 90 * 60; // 90 phút quy ra giây
+        let timerInterval;
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            document.getElementById('timer').innerText = `Thời gian: ${formatTime(timeLeft)}`;
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = `Thời gian: ${formatTime(timeLeft)}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Đã hết thời gian làm bài! Hệ thống tự động nộp bài.");
+                    showResults();
+                }
+            }, 1000);
+        }
 
         function initQuiz() {
             questions = shuffle([...quizData]);
             currentQuestionIndex = 0;
             score = 0;
+            userAnswers = new Array(questions.length).fill(null);
+            timeLeft = 90 * 60;
+            
             document.getElementById('quiz-screen').style.display = 'block';
             document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('review-container').style.display = 'none';
+            document.getElementById('toggle-review-btn').innerText = "Xem Lại Câu Sai";
+            
+            startTimer();
             loadQuestion();
         }
 
         function loadQuestion() {
             const currentQuestion = questions[currentQuestionIndex];
             document.getElementById('question-number').innerText = `Câu ${currentQuestionIndex + 1} / ${questions.length}`;
-            document.getElementById('score-tracker').innerText = `Điểm: ${score}`;
             document.getElementById('question-text').innerText = currentQuestion.q;
             
             const progressPercent = (currentQuestionIndex / questions.length) * 100;
@@ -267,7 +353,9 @@
 
             const optionsContainer = document.getElementById('options-container');
             optionsContainer.innerHTML = '';
-            document.getElementById('next-btn').style.display = 'none';
+            
+            // Ẩn nút Next nếu chưa chọn câu trả lời
+            document.getElementById('next-btn').style.display = userAnswers[currentQuestionIndex] !== null ? 'block' : 'none';
 
             let options = [...currentQuestion.w, currentQuestion.a];
             
@@ -284,34 +372,37 @@
                 const button = document.createElement('button');
                 button.className = 'option-btn';
                 button.innerText = option;
-                button.onclick = () => selectAnswer(button, option === currentQuestion.a);
+                
+                // Giữ lại lựa chọn nếu quay lại (mặc dù hiện tại flow là 1 chiều tiến)
+                if (userAnswers[currentQuestionIndex] === option) {
+                    button.classList.add('selected');
+                }
+
+                button.onclick = () => selectAnswer(button, option);
                 optionsContainer.appendChild(button);
             });
         }
 
-        function selectAnswer(selectedBtn, isCorrect) {
+        function selectAnswer(selectedBtn, selectedOption) {
+            // Xóa class selected ở tất cả các nút
             const buttons = document.querySelectorAll('.option-btn');
             buttons.forEach(btn => {
-                btn.disabled = true;
-                if (btn.innerText === questions[currentQuestionIndex].a) {
-                    btn.classList.add('correct');
-                }
+                btn.classList.remove('selected');
             });
 
-            if (isCorrect) {
-                selectedBtn.classList.add('correct');
-                score++;
-                document.getElementById('score-tracker').innerText = `Điểm: ${score}`;
-            } else {
-                selectedBtn.classList.add('wrong');
-            }
+            // Highlight nút vừa chọn
+            selectedBtn.classList.add('selected');
+            
+            // Lưu câu trả lời
+            userAnswers[currentQuestionIndex] = selectedOption;
 
+            // Hiện nút tiếp theo
             document.getElementById('next-btn').style.display = 'block';
         }
 
         function nextQuestion() {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < questions.length) {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
                 loadQuestion();
             } else {
                 showResults();
@@ -319,6 +410,16 @@
         }
 
         function showResults() {
+            clearInterval(timerInterval); // Dừng thời gian
+            
+            // Tính điểm
+            score = 0;
+            for(let i = 0; i < questions.length; i++) {
+                if(userAnswers[i] === questions[i].a) {
+                    score++;
+                }
+            }
+
             document.getElementById('quiz-screen').style.display = 'none';
             document.getElementById('result-screen').style.display = 'block';
             document.getElementById('final-score').innerText = `${score} / ${questions.length}`;
@@ -333,6 +434,49 @@
                 feedback.innerText = 'Khá ổn! Bạn nên đọc lại tài liệu để chắc chắn hơn nhé.';
             } else {
                 feedback.innerText = 'Bạn cần dành thêm thời gian ôn tập học phần này rồi!';
+            }
+            
+            generateReviewUI();
+        }
+
+        function generateReviewUI() {
+            const reviewContainer = document.getElementById('review-container');
+            reviewContainer.innerHTML = ''; 
+            
+            let wrongCount = 0;
+
+            for(let i = 0; i < questions.length; i++) {
+                if(userAnswers[i] !== questions[i].a) {
+                    wrongCount++;
+                    const reviewItem = document.createElement('div');
+                    reviewItem.className = 'review-item';
+                    
+                    const userAnswerText = userAnswers[i] ? userAnswers[i] : "Chưa trả lời";
+                    
+                    reviewItem.innerHTML = `
+                        <div class="review-question">Câu ${i+1}: ${questions[i].q}</div>
+                        <div class="review-wrong">❌ Bạn chọn: ${userAnswerText}</div>
+                        <div class="review-correct">✅ Đáp án đúng: ${questions[i].a}</div>
+                    `;
+                    reviewContainer.appendChild(reviewItem);
+                }
+            }
+
+            if(wrongCount === 0) {
+                reviewContainer.innerHTML = '<div style="text-align:center; color: #10b981; font-weight:bold; margin-top:20px;">Tuyệt vời! Bạn không sai câu nào.</div>';
+            }
+        }
+
+        function toggleReview() {
+            const reviewContainer = document.getElementById('review-container');
+            const toggleBtn = document.getElementById('toggle-review-btn');
+            
+            if (reviewContainer.style.display === 'none' || reviewContainer.style.display === '') {
+                reviewContainer.style.display = 'block';
+                toggleBtn.innerText = "Ẩn Xem Lại";
+            } else {
+                reviewContainer.style.display = 'none';
+                toggleBtn.innerText = "Xem Lại Câu Sai";
             }
         }
 
